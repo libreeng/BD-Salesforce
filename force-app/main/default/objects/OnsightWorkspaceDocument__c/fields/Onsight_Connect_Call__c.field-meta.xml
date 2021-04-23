@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Onsight_Connect_Call__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <externalId>false</externalId>
+    <label>Onsight Connect Call</label>
+    <referenceTo>OnsightConnectCall__c</referenceTo>
+    <relationshipLabel>Onsight Workspace Documents</relationshipLabel>
+    <relationshipName>Onsight_Workspace_Documents</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>
