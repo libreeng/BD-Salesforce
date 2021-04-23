@@ -13,10 +13,19 @@ const API_KEY = "AheUnSk9x2E2Gbrc0IxHAg.-c46bqVtDt39B83gRVqejMohOx-VXaVYM8lgU5VM
 
 export default class Onsight extends NavigationMixin(LightningElement) {
     @api recordId;
+    @api isPhone;
+    @api isAndroid;
     importing;
     otherSearchText = "";
 
     @track objUser = {};
+
+    getPlatform() {
+        if (this.isPhone) {
+            return this.isAndroid ? "Android" : "iOS";
+        }
+        return "PC";
+    }
     
     // get current user's email address
     @wire(getRecord, { recordId: USER_ID, fields: [ EMAIL_FIELD ] })
@@ -25,8 +34,6 @@ export default class Onsight extends NavigationMixin(LightningElement) {
             this.objUser = {
                 Email: data.fields.Email.value
             };
-
-            console.log(`++userData.Email: ${this.objUser.Email}`);
         } 
         else if(error) {
             window.console.log('error: '+ JSON.stringify(error))
@@ -35,7 +42,7 @@ export default class Onsight extends NavigationMixin(LightningElement) {
 
     createRequestBody(calleeEmail) {
         return {
-            Platform: "PC",   // TODO: detect platform
+            Platform: this.getPlatform(),
             email: this.objUser.Email,
             calleeEmail,
             metadataItems: {
