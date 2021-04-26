@@ -3,9 +3,11 @@
     <lightning-layout-item padding="around-small" size="5">
         <div class="header-column">
           <p class="field-title" title="Connect">Connect</p>
-          <p>
-            <lightning-button data-email="expert@cogswellsprockets.com" variant="base" label="Joe Daly - Expert" title="Connect to Joe Daly" onclick={handleExpertClick} class="slds-m-left_x-small"></lightning-button>
-          </p>
+          <template if:true={remoteExpertAvailable}>
+            <p>
+                <lightning-button data-email={remoteExpertEmail} variant="base" label={remoteExpertName} title={remoteExpertLinkTitle} onclick={handleExpertClick} class="slds-m-left_x-small"></lightning-button>
+            </p>
+          </template>
           <p>
             <lightning-button data-email="fieldtech@cogswellsprockets.com" variant="base" label="Sally Jones - Field Tech" title="Connect to Sally Jones" onclick={handleFieldTechClick} class="slds-m-left_x-small"></lightning-button>
           </p>
@@ -16,15 +18,12 @@
     </lightning-layout-item>
     <lightning-layout-item padding="around-small" size="6">
         <div class="header-column">
-            <p class="field-title" title="Import Call Details">Import Call Details</p>
+            <p class="field-title" title="Import Call Details">Previous Calls</p>
             <lightning-layout>
-              <lightning-layout-item>
-                <lightning-input variant="label-hidden" placeholder="Metadata Search Terms" onblur={handleBlur}></lightning-input>
-              </lightning-layout-item>
               <template if:false={importing}>
                 <lightning-layout-item>
-                    <lightning-button variant="brand" label="Import" title="Import Call-related Documents and Metadata" onclick={handleImport} class="slds-m-left_x-small"></lightning-button>
-                  </lightning-layout-item>
+                   <lightning-button variant="brand" label="Import Assets" title="Import Call-related Documents and Metadata" onclick={handleImport} class="slds-m-left_x-small"></lightning-button>
+                </lightning-layout-item>
               </template>
               <template if:true={importing}>
                 <lightning-layout-item>

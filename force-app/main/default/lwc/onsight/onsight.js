@@ -1,15 +1,21 @@
 import { LightningElement, api, track, wire } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
-import { createRecord, getRecord } from 'lightning/uiRecordApi';
+import { createRecord, getRecord, getFieldValue } from 'lightning/uiRecordApi';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import USER_ID from '@salesforce/user/Id'; 
 import EMAIL_FIELD from '@salesforce/schema/User.Email';
+import WORK_ORDER_NUMBER_FIELD from '@salesforce/schema/WorkOrder.WorkOrderNumber';
+import REMOTE_EXPERT_FIELD from '@salesforce/schema/WorkOrder.RemoteExpert__c';
+import CONTACT_NAME_FIELD from '@salesforce/schema/Contact.Name';
+import CONTACT_EMAIL_FIELD from '@salesforce/schema/Contact.Email';
+import ONSIGHT_DOMAIN_API_KEY_FIELD from '@salesforce/schema/OnsightDomain__c.API_Key__c';
 
 const ONSIGHT_CONNECT_CALL_OBJECT = "OnsightConnectCall__c";
 const ONSIGHT_WORKSPACE_DOCUMENT_OBJECT = "OnsightWorkspaceDocument__c";
 const ONSIGHT_CONNECT_LAUNCH_URL = "https://onsight.librestream.com/oamrestapi/api/launchrequest";
 const WORKSPACE_URL = "https://onsight-workspace-proxy.azurewebsites.net/workspace/documents";      // Workspace API doesn't support CORS; need to proxy access to it
 const API_KEY = "AheUnSk9x2E2Gbrc0IxHAg.-c46bqVtDt39B83gRVqejMohOx-VXaVYM8lgU5VMe_8";   // TODO
+
 
 export default class Onsight extends NavigationMixin(LightningElement) {
     @api recordId;
@@ -19,6 +25,50 @@ export default class Onsight extends NavigationMixin(LightningElement) {
     otherSearchText = "";
 
     @track objUser = {};
+    @track remoteExpertId = "";
+
+    // TODO: will this work??
+    @wire(getRecord, { fields: [ ONSIGHT_DOMAIN_API_KEY_FIELD ]})
+    apiKey;
+
+    // get current user's email address
+    @wire(getRecord, { recordId: USER_ID, fields: [ EMAIL_FIELD ] })
+    userData({error, data}) {
+        if(data) {
+            this.objUser = {
+                email: data.fields.Email.value
+            };
+        }
+    }
+    
+    @wire(getRecord, { recordId: '$recordId', fields: [ WORK_ORDER_NUMBER_FIELD, REMOTE_EXPERT_FIELD ]})
+    workOrderData({error, data}) {
+        if (data) {
+            this.remoteExpertId = data.fields.RemoteExpert__c.value;
+        }
+    }
+
+    @wire(getRecord, { recordId: '$remoteExpertId', fields: [ CONTACT_NAME_FIELD, CONTACT_EMAIL_FIELD ]})
+    remoteExpert;
+
+    get remoteExpertAvailable() {
+        const email = this.remoteExpertEmail;
+        return email && email != this.objUser.email;
+    }
+
+    get remoteExpertName() {
+        const name = getFieldValue(this.remoteExpert.data, CONTACT_NAME_FIELD);
+        return name ? `${name} - Remote Expert` : "";
+    }
+
+    get remoteExpertEmail() {
+        return getFieldValue(this.remoteExpert.data, CONTACT_EMAIL_FIELD);
+    }
+
+    get remoteExpertLinkTitle() {
+        const name = getFieldValue(this.remoteExpert.data, CONTACT_NAME_FIELD);
+        return name ? `Connect to ${name}` : "";
+    }
 
     getPlatform() {
         if (this.isPhone) {
@@ -26,24 +76,11 @@ export default class Onsight extends NavigationMixin(LightningElement) {
         }
         return "PC";
     }
-    
-    // get current user's email address
-    @wire(getRecord, { recordId: USER_ID, fields: [ EMAIL_FIELD ] })
-    userData({error, data}) {
-        if(data) {
-            this.objUser = {
-                Email: data.fields.Email.value
-            };
-        } 
-        else if(error) {
-            window.console.log('error: '+ JSON.stringify(error))
-        } 
-    }
 
     createRequestBody(calleeEmail) {
         return {
             Platform: this.getPlatform(),
-            email: this.objUser.Email,
+            email: this.objUser.email,
             calleeEmail,
             metadataItems: {
                 salesforceWorkOrderId: this.recordId
@@ -52,10 +89,13 @@ export default class Onsight extends NavigationMixin(LightningElement) {
     }
 
     async handleExpertClick(event) {
-        const requestBody = this.createRequestBody("expert@cogswellsprockets.com");
-        const connectUri = await this.generateConnectUri(requestBody);
-        console.log("++Onsight Connect URI: " + connectUri);
-        this.openOnsightConnect(connectUri, requestBody);
+        const email = getFieldValue(this.remoteExpert.data, CONTACT_EMAIL_FIELD);
+        if (email) {
+            const requestBody = this.createRequestBody(email);
+            const connectUri = await this.generateConnectUri(requestBody);
+            console.log("++Onsight Connect URI: " + connectUri);
+            this.openOnsightConnect(connectUri, requestBody);
+        }
     }
 
     async handleFieldTechClick(event) {
