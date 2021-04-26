@@ -8,9 +8,11 @@
                 <lightning-button data-email={remoteExpertEmail} variant="base" label={remoteExpertName} title={remoteExpertLinkTitle} onclick={handleExpertClick} class="slds-m-left_x-small"></lightning-button>
             </p>
           </template>
-          <p>
-            <lightning-button data-email="fieldtech@cogswellsprockets.com" variant="base" label="Sally Jones - Field Tech" title="Connect to Sally Jones" onclick={handleFieldTechClick} class="slds-m-left_x-small"></lightning-button>
-          </p>
+          <template if:true={fieldWorkerAvailable}>
+            <p>
+                <lightning-button data-email={fieldWorkerEmail} variant="base" label={fieldWorkerName} title={fieldWorkerLinkTitle} onclick={handleFieldWorkerClick} class="slds-m-left_x-small"></lightning-button>
+            </p>
+          </template>
         </div>
     </lightning-layout-item>
     <lightning-layout-item size="1">

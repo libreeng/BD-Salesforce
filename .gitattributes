@@ -1,0 +1,4 @@
+* text=auto
+
+# Salesforce always uses LF for their XML files
+*.xml text eol=lf

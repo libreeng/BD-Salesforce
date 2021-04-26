@@ -6,9 +6,10 @@ import USER_ID from '@salesforce/user/Id';
 import EMAIL_FIELD from '@salesforce/schema/User.Email';
 import WORK_ORDER_NUMBER_FIELD from '@salesforce/schema/WorkOrder.WorkOrderNumber';
 import REMOTE_EXPERT_FIELD from '@salesforce/schema/WorkOrder.RemoteExpert__c';
+import FIELD_WORKER_FIELD from '@salesforce/schema/WorkOrder.FieldWorker__c';
 import CONTACT_NAME_FIELD from '@salesforce/schema/Contact.Name';
 import CONTACT_EMAIL_FIELD from '@salesforce/schema/Contact.Email';
-import ONSIGHT_DOMAIN_API_KEY_FIELD from '@salesforce/schema/OnsightDomain__c.API_Key__c';
+//import ONSIGHT_DOMAIN_API_KEY_FIELD from '@salesforce/schema/OnsightDomain__c.API_Key__c';
 
 const ONSIGHT_CONNECT_CALL_OBJECT = "OnsightConnectCall__c";
 const ONSIGHT_WORKSPACE_DOCUMENT_OBJECT = "OnsightWorkspaceDocument__c";
@@ -26,10 +27,11 @@ export default class Onsight extends NavigationMixin(LightningElement) {
 
     @track objUser = {};
     @track remoteExpertId = "";
+    @track fieldWorkerId = "";
 
-    // TODO: will this work??
-    @wire(getRecord, { fields: [ ONSIGHT_DOMAIN_API_KEY_FIELD ]})
-    apiKey;
+    // // TODO: will this work??
+    // @wire(getRecord, { fields: [ ONSIGHT_DOMAIN_API_KEY_FIELD ]})
+    // apiKey;
 
     // get current user's email address
     @wire(getRecord, { recordId: USER_ID, fields: [ EMAIL_FIELD ] })
@@ -41,15 +43,19 @@ export default class Onsight extends NavigationMixin(LightningElement) {
         }
     }
     
-    @wire(getRecord, { recordId: '$recordId', fields: [ WORK_ORDER_NUMBER_FIELD, REMOTE_EXPERT_FIELD ]})
+    @wire(getRecord, { recordId: '$recordId', fields: [ WORK_ORDER_NUMBER_FIELD, REMOTE_EXPERT_FIELD, FIELD_WORKER_FIELD ]})
     workOrderData({error, data}) {
         if (data) {
-            this.remoteExpertId = data.fields.RemoteExpert__c.value;
+            this.remoteExpertId = getFieldValue(data, REMOTE_EXPERT_FIELD); //data.fields.RemoteExpert__c.value;
+            this.fieldWorkerId = getFieldValue(data, FIELD_WORKER_FIELD);
         }
     }
 
     @wire(getRecord, { recordId: '$remoteExpertId', fields: [ CONTACT_NAME_FIELD, CONTACT_EMAIL_FIELD ]})
     remoteExpert;
+
+    @wire(getRecord, { recordId: '$fieldWorkerId', fields: [ CONTACT_NAME_FIELD, CONTACT_EMAIL_FIELD ]})
+    fieldWorker;
 
     get remoteExpertAvailable() {
         const email = this.remoteExpertEmail;
@@ -67,6 +73,25 @@ export default class Onsight extends NavigationMixin(LightningElement) {
 
     get remoteExpertLinkTitle() {
         const name = getFieldValue(this.remoteExpert.data, CONTACT_NAME_FIELD);
+        return name ? `Connect to ${name}` : "";
+    }
+
+    get fieldWorkerAvailable() {
+        const email = this.fieldWorkerEmail;
+        return email && email != this.objUser.email;
+    }
+
+    get fieldWorkerName() {
+        const name = getFieldValue(this.fieldWorker.data, CONTACT_NAME_FIELD);
+        return name ? `${name} - Field Worker` : "";
+    }
+
+    get fieldWorkerEmail() {
+        return getFieldValue(this.fieldWorker.data, CONTACT_EMAIL_FIELD);
+    }
+
+    get fieldWorkerLinkTitle() {
+        const name = getFieldValue(this.fieldWorker.data, CONTACT_NAME_FIELD);
         return name ? `Connect to ${name}` : "";
     }
 
@@ -98,11 +123,14 @@ export default class Onsight extends NavigationMixin(LightningElement) {
         }
     }
 
-    async handleFieldTechClick(event) {
-        const requestBody = this.createRequestBody("fieldtech@cogswellsprockets.com");
-        const connectUri = await this.generateConnectUri(requestBody);
-        console.log("++Onsight Connect URI: " + connectUri);
-        this.openOnsightConnect(connectUri, requestBody);
+    async handleFieldWorkerClick(event) {
+        const email = getFieldValue(this.fieldWorker.data, CONTACT_EMAIL_FIELD);
+        if (email) {
+            const requestBody = this.createRequestBody(email);
+            const connectUri = await this.generateConnectUri(requestBody);
+            console.log("++Onsight Connect URI: " + connectUri);
+            this.openOnsightConnect(connectUri, requestBody);
+        }
     }
 
     generateConnectUri(requestBody) {
