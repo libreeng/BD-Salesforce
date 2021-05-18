@@ -1,3 +1,7 @@
+/**
+ * Queries the Onsight Connect API for a user and device-specific URL
+ * from which a new Onsight Connect call can be made.
+ */
 public with sharing class OnsightConnectController {
     /**
      * Asks the Onsight Connect API to generate a call URI for the given request.

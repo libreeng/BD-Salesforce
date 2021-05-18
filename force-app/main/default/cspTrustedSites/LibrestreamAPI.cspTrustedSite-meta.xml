@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CspTrustedSite xmlns="http://soap.sforce.com/2006/04/metadata">
     <context>All</context>
-    <endpointUrl>https://onsight-workspace-proxy.azurewebsites.net</endpointUrl>
+    <endpointUrl>https://api.librestream.com</endpointUrl>
     <isActive>true</isActive>
     <isApplicableToConnectSrc>true</isApplicableToConnectSrc>
     <isApplicableToFontSrc>false</isApplicableToFontSrc>
