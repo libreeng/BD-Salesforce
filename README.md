@@ -7,6 +7,20 @@
 - A deployment environment; the integration uses the *sfdx* tool to deploy updates, so a Scratch org or similar environment is required.
 - The Salesforce CLI tools (aka, *sfdx*). These can be installed by visiting https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_install_cli.htm.
 
+### Optional: Creating a temporary Scratch Org
+
+For quick testing or development, you can create a temporary Scratch Organization to host a Salesforce deployment. The Scratch Org is a baseline deployment with no data and only factory-default metadata. It can have a lifetime up to 30 days, after which any changes made to the Scratch Org are wiped out, after which you will need to re-deploy a new Scratch Org.
+
+The following command line steps outline how to create a new Scratch Org and to deploy the Onsight integration code to it. These steps use the *sfdx* command line tool and must be executed from the root of the Salesforce git repo directory:
+
+```
+# Create new scratch org (will last 30 days before being lost)
+sfdx force:org:create -f config/project-scratch-def.json -a MyScratchOrg --setdefaultusername --durationdays 30
+
+# Authenticate against the new org (will launch a browser window and prompt you to login/enter a password):
+sfdx auth:web:login
+```
+
 ### Push and Configure
 
 Assuming you have an environment available (e.g., sandbox or scratch org), the integration can be deployed with the following command (from the project's root directory):
