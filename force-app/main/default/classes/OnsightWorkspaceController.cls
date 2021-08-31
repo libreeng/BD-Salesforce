@@ -32,13 +32,26 @@ public with sharing class OnsightWorkspaceController {
 
             // Map an Onsight Call document ID to its Salesforce Call object ID
             Map<String, Id> onsightToCallObjId = new Map<String, Id>();
+            Map<String, Document> assetToCallMap = new Map<String, Document>();
 
+            // Make all outgoing API calls up-front before we being inserting anything into Salesforce;
+            // otherwise, we'll get "you have uncommitted work pending" errors.
+            for (Document asset : assets) {
+                // Ask Onsight Workspace to fetch the Onsight Call document which owns this Document
+                Document parentDoc = getWorkspaceDocument(asset.parentID);
+
+                // Keep track of this Call object, as the next Document might reference it, too
+                assetToCallMap.put(asset.parentID, parentDoc);
+            }
+
+            // All external API calls have been made; we can now proceed to insert Workspace
+            // assets into Salesforce if they haven't been imported already.
             for (Document asset : assets) {
                 // Do we already have an OnsightConnectCall object for this Document?
                 Id callObjId = onsightToCallObjId.get(asset.parentID);
                 if (callObjId == null) {
                     // Ask Onsight Workspace to fetch the Onsight Call document which owns this Document
-                    Document parentDoc = getWorkspaceDocument(asset.parentID);
+                    Document parentDoc = assetToCallMap.get(asset.parentID);
 
                     // Assuming Workspace finds the given Onsight Call document, make sure that
                     // we have a corresponding OnsightConnectCall object in Salesforce which
