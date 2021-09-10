@@ -60,3 +60,48 @@ Click one of the 'Connect' contact links in the 'Onsight' tab. This will launch 
 Upon concluding the Onsight Call, have Onsight upload any captured assets to Onsight Workspace.
 
 Now, back in Salesforce, click the 'Import Assets' button. This will synchronize the current Work Order with your Onsight Workspace account, creating references within Salesforce to the corresponding Workspace documents/assets. Please note that the content of these Workspace documents is NOT copied into Salesforce; only references are made.
+
+### Generate 2GP packages
+
+Authorize your Dev Hub org.
+sfdx auth:web:login
+
+Make sure your project files for your package are in the force-app\main\default directory
+
+Be sure to have a namespace defined in your sfdx-project.json file in the project root. 
+To Link a Namespace to a Dev Hub Org follow the steps listed here:
+https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_reg_namespace.htm
+
+From the project directory, create the package.
+sfdx force:package:create --name "Test Project" --path force-app --packagetype Managed
+
+Create a package version. This example assumes the package metadata is in the force-app directory.
+sfdx force:package:version:create --package "Test Project" --installationkey test1234 --wait 10
+
+**After creating the package you will see a new 'packageAliases' section in your projects 'sfdx-project.json' file, located in the project root.
+We can only install the package versions into an org, the package versions identifier starts with '04t'.
+Each verison will appear under the 'packageAliases' section with a new version number appeneded to the package name. 
+You will use this package version name as a reference when installing your package to other orgs.
+
+### Deploy 2GP package to our Sandbox
+
+Login to the Sandbox where you plan to install the package.
+sfdx force:auth:web:login -r https://<sandbox_url>
+
+Install the package version in your sandbox.
+sfdx force:package:install --package "Test Project@0.1.0-1" --targetusername test_user@test.salesforce.com --installationkey test1234 --wait 10 --publishwait 10
+
+After the package is installed launch the sandbox org and place the new components into the 'Work Order' layout.
+As an Administrator, from Setup, click the Object Manager tab. Select 'Work Order', and open the Work Order Page Layouts setup page.
+Select 'Fields' from the upper panel and drag the 'Field Worker' and 'Remote Expert' fields into the Information section of the layout.
+Slect 'Mobile & Lighting Actions' from the upper panel and drag the 'Onsight' field into 'Salesforce Mobile and Lightning Experience Actions' panel.
+
+You will need to enable the fields for non-admin profiles so users can view the contact links. 
+As an Administrator, from Setup, click Users and select Profiles. 
+Select the Profile Name you would like to edit, under the Apps section select 'Object Settings' and select 'Work Orders' from the list of components.
+Select the edit button next to Work Order and give Read and Edit Access to the Remote Expert and the Field Worker then Save your changes. 
+
+Non-admin profiles will also require access to the Apex Classes in the package. 
+As an Administrator, from Setup, enter Apex Classes in the Quick Find box, then select Apex Classes.
+Next to OnsightConnectController and OnsightWorkspaceController, click Security.
+Select the profiles that you want to enable from the Available Profiles list and click Add then Save your changes.
