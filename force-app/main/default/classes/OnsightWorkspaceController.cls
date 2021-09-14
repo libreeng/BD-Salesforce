@@ -14,6 +14,8 @@
  * At the end, there is 1:1 correspondence between the Onsight Workspace documents
  */
 public with sharing class OnsightWorkspaceController {
+    public static String WORKSPACE_ROOT_URI = 'https://workspace.librestream.com/onsight/ui/#!/browse/';
+
 
     /**
      * Main entry point. Invoked by the Lightning web component when 
@@ -49,26 +51,27 @@ public with sharing class OnsightWorkspaceController {
             for (Document asset : assets) {
                 // Do we already have an OnsightConnectCall object for this Document?
                 Id callObjId = onsightToCallObjId.get(asset.parentID);
-                if (callObjId == null) {
-                    // Ask Onsight Workspace to fetch the Onsight Call document which owns this Document
-                    Document parentDoc = assetToCallMap.get(asset.parentID);
+                String onsightCallName = '';
 
-                    // Assuming Workspace finds the given Onsight Call document, make sure that
-                    // we have a corresponding OnsightConnectCall object in Salesforce which
-                    // references this call.
-                    if (parentDoc != null) {
-                        callObjId = insertCallIntoSalesforce(parentDoc, workOrderId);
-                        if (callObjId == null) {
-                            return error('Failed to create new OnsightConnectCall object for this WorkOrder');
-                        }
+                // Ask Onsight Workspace to fetch the Onsight Call document which owns this Document
+                Document parentDoc = assetToCallMap.get(asset.parentID);
 
-                        // Keep track of this Call object, as the next Document might reference it, too
-                        onsightToCallObjId.put(asset.parentID, callObjId);
+                // Assuming Workspace finds the given Onsight Call document, make sure that
+                // we have a corresponding OnsightConnectCall object in Salesforce which
+                // references this call.
+                if (parentDoc != null) {
+                    onsightCallName = parentDoc.title;
+                    callObjId = insertCallIntoSalesforce(parentDoc, workOrderId);
+                    if (callObjId == null) {
+                        return error('Failed to create new OnsightConnectCall object for this WorkOrder');
                     }
+
+                    // Keep track of this Call object, as the next Document might reference it, too
+                    onsightToCallObjId.put(asset.parentID, callObjId);
                 }
 
                 // Create a corresponding Salesforce object which will *reference* this Onsight Workspace Document
-                Id sfDoc = insertCorrespondingSalesforceDocument(callObjId, asset);
+                Id sfDoc = insertCorrespondingSalesforceDocument(onsightCallName, callObjId, asset);
                 if (sfDoc == null) {
                     return error('Failed to insert Onsight Workspace asset into Salesforce');
                 }
@@ -138,7 +141,9 @@ public with sharing class OnsightWorkspaceController {
      * @param wsDoc the Onsight Workspace document/asset for which a reference Salesforce object
      * is to be created.
      */
-    private static Id insertCorrespondingSalesforceDocument(Id callObjId, Document wsDoc) {
+    private static Id insertCorrespondingSalesforceDocument(String onsightCallName, Id callObjId, Document wsDoc) {
+        String onsightDomain = wsDoc.createdBy.substringAfter('@');
+
         OnsightWorkspaceDocument__c sfDoc = new OnsightWorkspaceDocument__c();
         sfDoc.Name = wsDoc.title;
         sfDoc.ID__c = wsDoc.id;
@@ -146,7 +151,7 @@ public with sharing class OnsightWorkspaceController {
         sfDoc.Description__c = wsDoc.description;
         sfDoc.External_Metadata__c = (String)JSON.serialize(wsDoc.externalMetadata);
         sfDoc.ParentID__c = wsDoc.parentID;
-        sfDoc.Download_URL__c = wsDoc.downloadUrl;
+        sfDoc.Download_URL__c = WORKSPACE_ROOT_URI + onsightDomain + '/workspace/onsight/' + wsDoc.createdBy + '/' + onsightCallName + '/' + wsDoc.title;
         sfDoc.Onsight_Connect_Call__c = callObjId;
 
         try {
@@ -249,6 +254,7 @@ public with sharing class OnsightWorkspaceController {
         String id;
         String parentID;
         String title;
+        String createdBy;
         String downloadURL;
         String type;
         String description;
