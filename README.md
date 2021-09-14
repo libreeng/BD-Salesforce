@@ -100,14 +100,19 @@ Select 'Related Lists' from the upper panel and drag the 'Onsight connect Calls'
 Enable the fields for non-admin profiles so users can view the contact links. 
 As an Administrator, from Setup, click Users and select Profiles. 
 Select the Profile Name you would like to edit, under the Apps section select 'Object Settings' and select 'Work Orders' from the list of objects.
-Select the edit button next to Work Order and give Read and Edit Access to the following fields, then Save your changes:
+Select the edit button next to Work Order and give Read and Edit access to the following fields, then Save your changes:
 Remote Expert
 Field Worker
+
+Enable the fields for non-admin profiles so users can view the Onsight Connect Calls. 
+As an Administrator, from Setup, click Users and select Profiles. 
+Select the Profile Name you would like to edit, under the Apps section select 'Object Settings' and select 'Onsight Connect Calls' from the list of objects.
+Select the edit button next to Onsight Connect Calls and give Read access to "Work Order", then Save your change.
 
 Enable the fields for non-admin profiles so users can view the Onsight Workspace Document. 
 As an Administrator, from Setup, click Users and select Profiles. 
 Select the Profile Name you would like to edit, under the Apps section select 'Object Settings' and select 'Onsight Workspace Documents' from the list of objects.
-Select the edit button next to Onsight Workspace Documents and give Read Access to the the following following fields, then Save your changes:
+Select the edit button next to Onsight Workspace Documents and give Read access to the the following following fields, then Save your changes:
 Download URL
 External Metadata
 Onsight Connect Call
