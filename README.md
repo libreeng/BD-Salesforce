@@ -95,11 +95,24 @@ After the package is installed launch the sandbox org and place the new componen
 As an Administrator, from Setup, click the Object Manager tab. Select 'Work Order', and open the Work Order Page Layouts setup page.
 Select 'Fields' from the upper panel and drag the 'Field Worker' and 'Remote Expert' fields into the Information section of the layout.
 Slect 'Mobile & Lighting Actions' from the upper panel and drag the 'Onsight' field into 'Salesforce Mobile and Lightning Experience Actions' panel.
+Select 'Related Lists' from the upper panel and drag the 'Onsight connect Calls' field into the Related Lists section of the layout.
 
-You will need to enable the fields for non-admin profiles so users can view the contact links. 
+Enable the fields for non-admin profiles so users can view the contact links. 
 As an Administrator, from Setup, click Users and select Profiles. 
-Select the Profile Name you would like to edit, under the Apps section select 'Object Settings' and select 'Work Orders' from the list of components.
-Select the edit button next to Work Order and give Read and Edit Access to the Remote Expert and the Field Worker then Save your changes. 
+Select the Profile Name you would like to edit, under the Apps section select 'Object Settings' and select 'Work Orders' from the list of objects.
+Select the edit button next to Work Order and give Read and Edit Access to the following fields, then Save your changes:
+Remote Expert
+Field Worker
+
+Enable the fields for non-admin profiles so users can view the Onsight Workspace Document. 
+As an Administrator, from Setup, click Users and select Profiles. 
+Select the Profile Name you would like to edit, under the Apps section select 'Object Settings' and select 'Onsight Workspace Documents' from the list of objects.
+Select the edit button next to Onsight Workspace Documents and give Read Access to the the following following fields, then Save your changes:
+Download URL
+External Metadata
+Onsight Connect Call
+Parent ID
+Type
 
 Non-admin profiles will also require access to the Apex Classes in the package. 
 As an Administrator, from Setup, enter Apex Classes in the Quick Find box, then select Apex Classes.
