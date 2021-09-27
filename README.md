@@ -86,7 +86,7 @@ You will use this package version name as a reference when installing your packa
 ### Deploy 2GP package to an Org
 
 Login to the Org where you plan to install the package.
-sfdx force:auth:web:login -r https://<salesforce_url>
+sfdx force:auth:web:login -r https://<salesforce_url> or https://test.salesforce.com for sandbox orgs.
 
 Install the package version into target Org using CLI.
 sfdx force:package:install --package "Test Project@0.1.0-1" --targetusername test_user@test.salesforce.com --installationkey test1234 --wait 10 --publishwait 10
@@ -96,8 +96,9 @@ sfdx force:package:install --package "Test Project@0.1.0-1" --targetusername tes
 After the package is installed launch the Org and place the new components into the 'Work Order' layout.
 As an Administrator, from Setup, click the Object Manager tab. Select 'Work Order', and open the Work Order Page Layouts setup page.
 Select 'Fields' from the upper panel and drag the 'Field Worker' and 'Remote Expert' fields into the Information section of the layout.
-Slect 'Mobile & Lighting Actions' from the upper panel and drag the 'Onsight' field into 'Salesforce Mobile and Lightning Experience Actions' panel.
 Select 'Related Lists' from the upper panel and drag the 'Onsight connect Calls' field into the Related Lists section of the layout.
+
+As an Administrator, from the Work Orders app, select Setup then Edit Page. Scroll down the left panel until you see the 'onsight' component under Custom then drag the component to the top of the Details page. Select save and make this page the Org default for both desktop and phone editions. 
 
 Enable the fields for non-admin profiles so users can view the contact links.
 As an Administrator, from Setup, click Users and select Profiles. 
