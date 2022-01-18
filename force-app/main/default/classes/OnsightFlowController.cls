@@ -32,7 +32,7 @@ public with sharing class OnsightFlowController {
         Http http = new Http();
         HttpRequest request = new HttpRequest();
          // Provide the API Key
-        request.setEndpoint('callout:TokenGen');
+        request.setEndpoint('callout:Flow_Proxy_URI');
         request.setMethod('POST');
         request.setHeader('X-Api-Key', '{!$Credential.Password}');
         request.setHeader('Content-Type', 'application/json');

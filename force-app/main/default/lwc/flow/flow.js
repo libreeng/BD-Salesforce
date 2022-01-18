@@ -19,14 +19,17 @@ export default class Flow extends LightningElement {
     WiredObjects_Type({ error, data }) {
         if (data) {
             try {
-                this.l_All_WorkFlows = data; 
-                let options = [];
+                this.l_All_WorkFlows = data;
+               let options = [];
                 data.forEach(key => {
-                    options.push({ label: key.name, value: key.activeVersionId  });
+                    if (key.activeVersionId !== undefined)
+                    {
+                        options.push({ label: key.name, value: key.activeVersionId  });
+                    }
                 });
 
                 this.WorkFlowOptions = options;
-                
+
             } catch (error) {
                 this.showFailure("Failed to load workflows", error);
             }
@@ -34,17 +37,18 @@ export default class Flow extends LightningElement {
             this.showFailure("Failed to load workflows");
         }
     }
-    
+
     @wire(getRecord, { recordId: '$recordId', fields: [ WORK_FLOW_SELECTED_FIELD ]})
     async workOrderData({error, data}) {
-        if (data) {
+        if (data && data !== undefined) {
             this.selectedWorkFlow = await getFieldValue(data, WORK_FLOW_SELECTED_FIELD);
             this.value = this.selectedWorkFlow;
-        } else if (error) {
-            this.showFailure("Failed to load selected workflow", error);
+        } else if (error && error !== undefined) {
+            this.showFailure("Failed to load selected workflow");
+            console.log(error);
         }
     }
- 
+
     handleWorkFlowChange(event){
         const fields = {};
         fields.Id = this.recordId;
@@ -65,8 +69,8 @@ export default class Flow extends LightningElement {
 
     /**
      * Show a red, failure toast message to the user.
-     * @param {*} title 
-     * @param {*} message 
+     * @param {*} title
+     * @param {*} message
      */
         showFailure(title, message) {
         this.dispatchEvent(
@@ -75,7 +79,7 @@ export default class Flow extends LightningElement {
                 message,
                 variant: 'error',
             }),
-        );        
+        );
     }
 
 }
