@@ -52,7 +52,7 @@ export default class Onsight extends NavigationMixin(LightningElement) {
 
     get remoteExpertName() {
         const name = getFieldValue(this.remoteExpert.data, CONTACT_NAME_FIELD);
-        return name ? `${name} - Remote Expert` : "";
+        return name ? `${name}` : "";
     }
 
     get remoteExpertEmail() {
@@ -71,7 +71,7 @@ export default class Onsight extends NavigationMixin(LightningElement) {
 
     get fieldWorkerName() {
         const name = getFieldValue(this.fieldWorker.data, CONTACT_NAME_FIELD);
-        return name ? `${name} - Field Worker` : "";
+        return name ? `${name}` : "N/A";
     }
 
     get fieldWorkerEmail() {
@@ -80,7 +80,7 @@ export default class Onsight extends NavigationMixin(LightningElement) {
 
     get fieldWorkerLinkTitle() {
         const name = getFieldValue(this.fieldWorker.data, CONTACT_NAME_FIELD);
-        return name ? `Connect to ${name}` : "";
+        return name ? `Connect to ${name}` : "N/A";
     }
 
     /**

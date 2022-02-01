@@ -1,30 +1,44 @@
 <template>
   <lightning-layout>
     <lightning-layout-item padding="around-small" size="5">
+      <div class="header-column">
+        <p class="field-title" title="Connect">Connect</p>
+
         <div class="header-column">
-          <p class="field-title" title="Connect">Connect</p>
           <template if:true={remoteExpertAvailable}>
-            <p>
-                <lightning-button data-email={remoteExpertEmail} variant="base" label={remoteExpertName} title={remoteExpertLinkTitle} onclick={handleConnectClick} class="slds-m-left_x-small"></lightning-button>
-            </p>
-          </template>
-          <template if:true={fieldWorkerAvailable}>
-            <p>
-                <lightning-button data-email={fieldWorkerEmail} variant="base" label={fieldWorkerName} title={fieldWorkerLinkTitle} onclick={handleConnectClick} class="slds-m-left_x-small"></lightning-button>
-            </p>
+          <p class="field-title slds-var-m-left_xx-small" title="Remote Expert">Remote Expert:</p>
+            <lightning-layout>
+              <lightning-layout-item>
+                <lightning-button class="slds-var-m-left_x-small" data-email={remoteExpertEmail} variant="brand" label={remoteExpertName} title={remoteExpertLinkTitle} onclick={handleConnectClick}></lightning-button>
+              </lightning-layout-item>
+            </lightning-layout>
           </template>
         </div>
+
+        <div class="header-column">
+          <template if:true={fieldWorkerAvailable}>
+          <p class="field-title slds-var-m-left_xx-small" title="Field Worker">Field Worker:</p>
+            <lightning-layout>
+              <lightning-layout-item>
+                <lightning-button class="slds-var-m-left_x-small" data-email={fieldWorkerEmail} variant="brand" label={fieldWorkerName} title={fieldWorkerLinkTitle} onclick={handleConnectClick}></lightning-button>
+              </lightning-layout-item>
+            </lightning-layout>
+          </template>
+        </div>
+      </div>
     </lightning-layout-item>
+  
     <lightning-layout-item size="1">
       <p>&nbsp;</p>
     </lightning-layout-item>
+    
     <lightning-layout-item padding="around-small" size="6">
         <div class="header-column">
-            <p class="field-title" title="Import Call Details">Previous Calls</p>
+            <p class="field-title" title="Import Call Details">Completed Calls</p>
             <lightning-layout>
               <template if:false={importing}>
                 <lightning-layout-item>
-                   <lightning-button variant="brand" label="Import Assets" title="Import Call-related Documents and Metadata" onclick={handleImport} class="slds-m-left_x-small"></lightning-button>
+                  <lightning-button variant="brand" label="Import Assets" title="Import Call-related Documents and Metadata" onclick={handleImport} class="slds-m-left_x-small"></lightning-button>
                 </lightning-layout-item>
               </template>
               <template if:true={importing}>
