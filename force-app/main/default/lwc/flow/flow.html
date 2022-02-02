@@ -1,11 +1,11 @@
 <template>
     <div class="slds-var-p-horizontal_medium">
-        <lightning-combobox name="workflows" label="Workflow" value={value} options={WorkFlowOptions}  onchange={handleWorkFlowChange}></lightning-combobox> 
+        <lightning-combobox name="workflows" label="Workflow" value={value} options={workFlowOptions}  onchange={handleWorkFlowChange}></lightning-combobox> 
         <br/>
-        <template if:true={validUser}>
+        <template if:true={displayBeginWorkflow}>
             <lightning-button variant="brand" label="Begin Workflow" title="Begin Workflow" onclick={handleClick} class="slds-var-m-left_x-small"></lightning-button>
         </template>
-        <template if:false={validUser}>
+        <template if:false={displayBeginWorkflow}>
             <lightning-button variant="brand" disabled="true" label="Begin Workflow" title="Begin Workflow" onclick={handleClick} class="slds-var-m-left_x-small"></lightning-button>
         </template>
         <template if:false={importing}>

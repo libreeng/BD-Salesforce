@@ -13,28 +13,28 @@ import WORK_FLOW_SELECTED_FIELD from '@salesforce/schema/WorkOrder.Work_Flow_Sel
 export default class Flow extends LightningElement {
 
     @api recordId; 
+    
     importing;              // shows/hides our busy indicator during import
+    workFlowOptions = [];
 
+    @track displayBeginWorkflow;
     @track fieldWorkerId = "";
-    @track l_All_WorkFlows;
     @track selectedWorkFlow = '';
     @track value;
-    @track WorkFlowOptions;
-    @track validUser;
     
     /**
      * Get the field worker data and sets the valid user
      * to disable the 'Begin Workflow' button if necessary
      */
     @wire(getRecord, { recordId: '$recordId', fields: [ FIELD_WORKER_FIELD ]})
-    WiredFieldWorkerData({error, data}) {
+    async WiredFieldWorkerData({error, data}) {
         if (data && data !== undefined) {
-            this.fieldWorkerId = getFieldValue(data, FIELD_WORKER_FIELD);
+            this.fieldWorkerId = await getFieldValue(data, FIELD_WORKER_FIELD);
             if (this.fieldWorkerId == null) {
-                this.validUser = false;
-                this.WorkFlowOptions = []; 
+                this.displayBeginWorkflow = false;
+                this.workFlowOptions = []; 
             } else {
-                this.validUser = true;
+                this.displayBeginWorkflow = true;
             }
         }
     } 
@@ -52,9 +52,10 @@ export default class Flow extends LightningElement {
      */
     @wire(GetFlowUriAsync, {requestBody: '$fieldWorkerEmail'})
     WiredGetFlowUriAsync({ error, data }) {
+        this.workFlowOptions = [];
         if (data) {
             try {
-                this.l_All_WorkFlows = data;
+                this.displayBeginWorkflow = false;
                 let options = [];
                 data.forEach(key => {
                     if (key.activeVersionId !== undefined) {
@@ -62,10 +63,15 @@ export default class Flow extends LightningElement {
                     }
                 });
                 if (options.length == 0 && this.selectedWorkFlow != '') {
-                    this.validUser = false;
                     this.showFailure("No available workflows. Please ensure the assigned Field Worker has been given access to workflows in the Flow Dashboard.", error);
                 }
-                this.WorkFlowOptions = options;
+                this.workFlowOptions = options;
+
+                this.workFlowOptions.forEach(option => {
+                    if (option.value === this.selectedWorkFlow) {
+                        this.displayBeginWorkflow = true;
+                    }
+                });
 
             } catch (error) {
                 this.showFailure("Failed to load workflows", error);
