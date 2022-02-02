@@ -1,11 +1,11 @@
 /**
- * Asks the Onsight Flow API to generate a URL to 
+ * Asks the Onsight Flow API to generate a URL to
  * Onsight Flow to Start a new Workflow based job.
  */
 public with sharing class OnsightFlowController {
     /**
      * Returns the valid onsite workflows for the current group.
-     */    
+     */
     @AuraEnabled(cacheable=true)
     public static List<WorkFlow> getFlowUriAsync(String requestBody) {
         Http http = new Http();
@@ -72,7 +72,7 @@ public with sharing class OnsightFlowController {
         HttpResponse response = http.send(request);
 
         List<WorkFlow> workFlows;
-        
+
         if (response.getStatusCode() >= 200 && response.getStatusCode() < 300) {
             String jsonResponse = response.getBody();
             workFlows = (List<WorkFlow>)JSON.deserialize(jsonResponse, List<WorkFlow>.class);
@@ -84,16 +84,16 @@ public with sharing class OnsightFlowController {
         List<FlowReport> flowReports = new List<FlowReport>();
         for (WorkFlowJob workFlowJob : workFlowJobs) {
             if (workFlowJob.completedReportURL != null && workFlowJob.completedReportURL != '') {
-                Http h = new Http(); 
-                HttpRequest req = new HttpRequest(); 
-                req.setEndpoint(workFlowJob.completedReportURL); 
+                Http h = new Http();
+                HttpRequest req = new HttpRequest();
+                req.setEndpoint(workFlowJob.completedReportURL);
                 req.setMethod('GET');
-                req.setHeader('Content-Type', 'application/pdf'); 
-                req.setCompressed(true); 
+                req.setHeader('Content-Type', 'application/pdf');
+                req.setCompressed(true);
                 req.setTimeout(60000);
-                HttpResponse res  = h.send(req); 
+                HttpResponse res  = h.send(req);
                 FlowReport workFlowReport = new FlowReport();
-                workFlowReport.blobData = EncodingUtil.base64Encode(res.getBodyAsBlob());   
+                workFlowReport.blobData = EncodingUtil.base64Encode(res.getBodyAsBlob());
                 workFlowReport.jobTitle = workFlowJob.metadata.jobTitle;
                 workFlowReport.workOrderId = Id.valueOf(workOrderId);
                 flowReports.add(workFlowReport);
@@ -101,7 +101,7 @@ public with sharing class OnsightFlowController {
         }
         return flowReports;
     }
-    
+
     private static Integer insertCompletedReportIntoSalesforce(List<FlowReport> flowReports, Id workOrderId) {
         List<ContentDocument> contentDocumentsToDelete = new List<ContentDocument>();
         for (ContentDocumentLink contentDocumentLink : [
@@ -137,10 +137,10 @@ public with sharing class OnsightFlowController {
     public static List<String> importFlowJobsAsync(Id workOrderId) {
         List<String> results = new List<String>();
         try {
-            // get all workflow jobs for team  
+            // get all workflow jobs for team
             List<WorkFlowJob> allWorkFlowJobs = getAllWorkFlowJobs();
             List<WorkFlowJob> allCompletedJobsForWorkOrder = new List<WorkFlowJob>();
-            
+
             // get all workflow jobs with metadata for workorder
             for (WorkFlowJob workFlowJob : allWorkFlowJobs) {
                 String sfWorkOrderId = workFlowJob.metadata.metadata.get('sfWorkOrderId');
@@ -170,14 +170,14 @@ public with sharing class OnsightFlowController {
             // download the pdf blob using the completedReportURL
             List<FlowReport> completedFlowJobReportsToInsert = getReportsFromCompletedWorkFlowJobs(allCompletedJobsForWorkOrderWithDetails, workOrderId);
 
-            // All external API calls have been made; we can now proceed to insert Completed Workflows 
+            // All external API calls have been made; we can now proceed to insert Completed Workflows
             // into Salesforce if they haven't been imported already.
             Map<String,Boolean> insertedCompletedWorkflowResults = new Map<String,Boolean>();
-            
+
             for (WorkFlowJob workFlowJob : allCompletedJobsForWorkOrderWithDetails) {
                 insertedCompletedWorkflowResults.putAll(insertCompletedWorkFlowIntoSalesforce(workFlowJob, workOrderId));
             }
-  
+
             List<Boolean> successfulWorkFlows = new List<Boolean>();
             for (Boolean status : insertedCompletedWorkflowResults.values()) {
                 if (status) {
@@ -221,7 +221,7 @@ public with sharing class OnsightFlowController {
 
     private static WorkFlowJob getAllWorkFlowJobsWithDetails(String jobId) {
         String url = 'https://gateway.flow.librestream.com/jobs/v1/bson/' + jobId;
-        
+
         Http http = new Http();
         HttpRequest request = new HttpRequest();
 
@@ -259,7 +259,7 @@ public with sharing class OnsightFlowController {
         if (response.getStatusCode() >= 200 && response.getStatusCode() < 300) {
             String jsonResponse = response.getBody();
             ReportResponse report = (ReportResponse)JSON.deserialize(jsonResponse, ReportResponse.class);
-          
+
             return report;
          }
 
@@ -282,7 +282,7 @@ public with sharing class OnsightFlowController {
         occ.Client_Job_Id__c = workFlowJob.metadata.clientJobId;
         occ.Created__c = workFlowJob.metadata.created;
         occ.Metadata__c = (String)JSON.serialize(workFlowJob.metadata.metadata);
-        
+
         occ.Modified__c = workFlowJob.metadata.modified;
         occ.Status__c = workFlowJob.metadata.status;
         occ.Team__c = workFlowJob.team;
@@ -299,11 +299,11 @@ public with sharing class OnsightFlowController {
             if (workFlowJob.completedSteps != null) {
                 for (CompletedSteps completedStep : workFlowJob.completedSteps) {
                     Onsite_Workflow_Step__c ows = new Onsite_Workflow_Step__c();
-                    ows.Onsight_Flow_Job__c = occ.Id;
+                    ows.Completed_Workflow__c = occ.Id;
                     ows.Description__c = completedStep.singleStep.stepDescription;
                     ows.Notes__c = completedStep.singleStep.note;
                     ows.Name = completedStep.singleStep.stepTitle;
-                    ows.User__c = completedStep.singleStep.userName;  
+                    ows.User__c = completedStep.singleStep.userName;
                     ows.Completed__c = completedStep.singleStep.completed;
                     ows.Started__c = completedStep.singleStep.started;
                     ows.Step_Number__c = completedStep.singleStep.stepNumber;
@@ -311,7 +311,7 @@ public with sharing class OnsightFlowController {
                     if (completedStep.singleStep.values.size() != 0) {
                         ows.Input__c = JSON.serialize(completedStep.singleStep.values);
                     }
-                    insert ows;              
+                    insert ows;
                 }
             }
             results.put(occ.ID__C, true);
@@ -349,7 +349,7 @@ public with sharing class OnsightFlowController {
         @auraEnabled
         public Metadata metadata;
         @AuraEnabled
-        public List<CompletedSteps> completedSteps;    
+        public List<CompletedSteps> completedSteps;
         @auraEnabled
         public String team;
         @auraEnabled
@@ -382,7 +382,7 @@ public with sharing class OnsightFlowController {
         @auraEnabled
         public String jobTitle;
         @auraEnabled
-        public Map<String,String> metadata;   
+        public Map<String,String> metadata;
         @auraEnabled
         public DateTime created;
         @auraEnabled
@@ -399,13 +399,13 @@ public with sharing class OnsightFlowController {
         public String username;
         public String workflowName;
     }
-    
+
     public class SingleStep {
         @auraEnabled
         public String[] values;
         @auraEnabled
         public String[] valueResourceIds;
-        @auraEnabled 
+        @auraEnabled
         public String uniqueStepId;
         @auraEnabled
         public String previousUniqueStepId;
@@ -478,10 +478,10 @@ public with sharing class OnsightFlowController {
         public String workflowIdForApproval;
         @auraEnabled
         public Boolean approvalsMigrated;
-        @auraEnabled 
+        @auraEnabled
         public String[] liveObjectIds;
     }
-    
+
     public class Version {
         @auraEnabled
         public String versionId;
