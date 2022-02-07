@@ -21,6 +21,9 @@ export default class Flow extends LightningElement {
     @track fieldWorkerId = "";
     @track selectedWorkFlow = '';
     @track value;
+
+    @api isPhone;         // injected by our Aura "wrapper" component
+    @api isAndroid;         // injected by our Aura "wrapper" component
     
     /**
      * Get the field worker data and sets the valid user
@@ -53,9 +56,9 @@ export default class Flow extends LightningElement {
     @wire(GetFlowUriAsync, {requestBody: '$fieldWorkerEmail'})
     WiredGetFlowUriAsync({ error, data }) {
         this.workFlowOptions = [];
+        this.displayBeginWorkflow = false;
         if (data) {
             try {
-                this.displayBeginWorkflow = false;
                 let options = [];
                 data.forEach(key => {
                     if (key.activeVersionId !== undefined) {

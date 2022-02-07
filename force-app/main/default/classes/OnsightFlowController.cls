@@ -298,20 +298,51 @@ public with sharing class OnsightFlowController {
 
             if (workFlowJob.completedSteps != null) {
                 for (CompletedSteps completedStep : workFlowJob.completedSteps) {
-                    Onsite_Workflow_Step__c ows = new Onsite_Workflow_Step__c();
-                    ows.Completed_Workflow__c = occ.Id;
-                    ows.Description__c = completedStep.singleStep.stepDescription;
-                    ows.Notes__c = completedStep.singleStep.note;
-                    ows.Name = completedStep.singleStep.stepTitle;
-                    ows.User__c = completedStep.singleStep.userName;
-                    ows.Completed__c = completedStep.singleStep.completed;
-                    ows.Started__c = completedStep.singleStep.started;
-                    ows.Step_Number__c = completedStep.singleStep.stepNumber;
-                    ows.Step_Type__c = completedStep.singleStep.stepType;
-                    if (completedStep.singleStep.values.size() != 0) {
-                        ows.Input__c = JSON.serialize(completedStep.singleStep.values);
+                    if (completedStep.reportStep != null) {
+                        Onsite_Workflow_Step__c ows = new Onsite_Workflow_Step__c();
+                        ows.Completed_Workflow__c = occ.Id;
+                        ows.Description__c = completedStep.reportStep.stepDescription;
+                        ows.Notes__c = completedStep.reportStep.note;
+                        ows.Name = completedStep.reportStep.stepTitle;
+                        ows.User__c = completedStep.reportStep.userName;
+                        ows.Completed__c = completedStep.reportStep.completed;
+                        ows.Started__c = completedStep.reportStep.started;
+                        ows.Step_Number__c = completedStep.reportStep.stepNumber;
+                        ows.Step_Type__c = completedStep.reportStep.stepType;
+                        insert ows;
+                        for (SingleStep reportStep : completedStep.reportStep.steps) {
+                            Onsite_Workflow_Step__c step = new Onsite_Workflow_Step__c();
+                            step.Onsite_Workflow_Step__c = ows.Id;
+                            // ows.Step_Id__c = reportStep.stepId;
+                            // ows.Unique_Step_Id__c = reportStep.uniqueStepId;
+                            // ows.value_Resource_Ids__c = valueResourceIds;
+                            step.Name = reportStep.stepTitle;
+                            step.Description__c = reportStep.stepDescription;
+                            step.Step_Type__c = reportStep.stepType;
+                            step.Step_Number__c = reportStep.stepNumber;
+                            step.Step_Metadata__c = (String)JSON.serialize(reportStep.metadata);
+                            if (reportStep.values.size() != 0) {
+                                step.Input__c = JSON.serialize(reportStep.values);
+                            }
+                            insert step;
+                        }
                     }
-                    insert ows;
+                    if (completedStep.singleStep != null) {
+                        Onsite_Workflow_Step__c ows = new Onsite_Workflow_Step__c();
+                        ows.Completed_Workflow__c = occ.Id;
+                        ows.Description__c = completedStep.singleStep.stepDescription;
+                        ows.Notes__c = completedStep.singleStep.note;
+                        ows.Name = completedStep.singleStep.stepTitle;
+                        ows.User__c = completedStep.singleStep.userName;
+                        ows.Completed__c = completedStep.singleStep.completed;
+                        ows.Started__c = completedStep.singleStep.started;
+                        ows.Step_Number__c = completedStep.singleStep.stepNumber;
+                        ows.Step_Type__c = completedStep.singleStep.stepType;
+                        if (completedStep.singleStep.values.size() != 0) {
+                            ows.Input__c = JSON.serialize(completedStep.singleStep.values);
+                        }
+                        insert ows;
+                    }
                 }
             }
             results.put(occ.ID__C, true);
@@ -362,14 +393,19 @@ public with sharing class OnsightFlowController {
         @auraEnabled
         public SingleStep singleStep;
         @auraEnabled
-        public String reportStep;
+        public ReportStep reportStep;
     }
 
     public class CompletedSteps {
         @auraEnabled
         public SingleStep singleStep;
         @auraEnabled
-        public String reportStep;
+        public ReportStep reportStep;
+    }
+
+    public class ReportStep extends SingleStep {
+        @auraEnabled
+        public List<SingleStep> steps;
     }
 
     public class Metadata {
@@ -400,7 +436,7 @@ public with sharing class OnsightFlowController {
         public String workflowName;
     }
 
-    public class SingleStep {
+    public virtual class SingleStep {
         @auraEnabled
         public String[] values;
         @auraEnabled

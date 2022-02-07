@@ -90,7 +90,7 @@ export default class Onsight extends NavigationMixin(LightningElement) {
      */
     getPlatform() {
         if (this.isPhone) {
-            return this.isAndroid ? "Android" : "iOS";
+            return this.isAndroid ? "PC" : "iOS";
         }
         return "PC";
     }

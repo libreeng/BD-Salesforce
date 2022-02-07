@@ -1,21 +1,53 @@
 <template>
-    <div class="slds-var-p-horizontal_medium">
+    <div class="slds-var-p-horizontal_medium" style="background-color:white">
         <lightning-combobox name="workflows" label="Workflow" value={value} options={workFlowOptions}  onchange={handleWorkFlowChange}></lightning-combobox> 
         <br/>
-        <template if:true={displayBeginWorkflow}>
-            <lightning-button variant="brand" label="Begin Workflow" title="Begin Workflow" onclick={handleClick} class="slds-var-m-left_x-small"></lightning-button>
+
+        <template if:true={isPhone}>
+            <ul style="text-align:center">
+                <li>
+                    <template if:true={displayBeginWorkflow}>
+                        <lightning-button variant="brand" label="Begin Workflow" title="Begin Workflow" onclick={handleClick}></lightning-button>
+                    </template>
+                    <template if:false={displayBeginWorkflow}>
+                        <lightning-button variant="brand" disabled="true" label="Begin Workflow" title="Begin Workflow" onclick={handleClick}></lightning-button>
+                    </template>
+                </li>
+                <!-- <li class="slds-var-m-top_x-small"></li>
+                <li>
+                    <template if:false={importing}>
+                        <lightning-button variant="brand" label="Import Completed Workflows" title="Import Completed Workflows" onclick={handleImportCompletedWorkFlows}></lightning-button>
+                    </template>
+                    <template if:true={importing}>
+                        <lightning-button variant="brand" label="Import Completed Workflows" disabled></lightning-button>
+                    </template>
+                    <template if:true={importing}>
+                        <lightning-spinner alternative-text="Importing" size="small"></lightning-spinner>
+                    </template>
+                </li> -->
+            </ul>
+
+            <br/>   
         </template>
-        <template if:false={displayBeginWorkflow}>
-            <lightning-button variant="brand" disabled="true" label="Begin Workflow" title="Begin Workflow" onclick={handleClick} class="slds-var-m-left_x-small"></lightning-button>
+
+        <template if:false={isPhone}>
+            <template if:true={displayBeginWorkflow}>
+                <lightning-button variant="brand" label="Begin Workflow" title="Begin Workflow" onclick={handleClick} class="slds-var-m-left_x-small"></lightning-button>
+            </template>
+            <template if:false={displayBeginWorkflow}>
+                <lightning-button variant="brand" disabled="true" label="Begin Workflow" title="Begin Workflow" onclick={handleClick} class="slds-var-m-left_x-small"></lightning-button>
+            </template>
+            <template if:false={importing}>
+                <lightning-button variant="brand" label="Import Completed Workflows" title="Import Completed Workflows" onclick={handleImportCompletedWorkFlows} class="slds-var-m-left_x-small"></lightning-button>
+            </template>
+            <template if:true={importing}>
+                <lightning-button variant="brand" label="Import Completed Workflows" class="slds-var-m-left_x-small" disabled></lightning-button>
+            </template>
+            <template if:true={importing}>
+                <lightning-spinner alternative-text="Importing" size="small"></lightning-spinner>
+            </template>
         </template>
-        <template if:false={importing}>
-            <lightning-button variant="brand" label="Import Completed Workflows" title="Import Completed Workflows" onclick={handleImportCompletedWorkFlows} class="slds-var-m-left_x-small"></lightning-button>
-        </template>
-        <template if:true={importing}>
-            <lightning-button variant="brand" label="Import Completed Workflows" class="slds-var-m-left_x-small" disabled></lightning-button>
-        </template>
-        <template if:true={importing}>
-            <lightning-spinner alternative-text="Importing" size="small"></lightning-spinner>
-        </template>
+        
+        
    </div>
 </template>
