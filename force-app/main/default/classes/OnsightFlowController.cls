@@ -198,7 +198,7 @@ public with sharing class OnsightFlowController {
     }
 
     private static List<WorkFlowJob> getAllWorkFlowJobs() {
-        String url = 'https://gateway.flow.librestream.com/jobs/v1/';
+        String url = 'https://gateway.flow.librestream.com/jobs/v1/?limit=1000';
 
         Http http = new Http();
         HttpRequest request = new HttpRequest();
