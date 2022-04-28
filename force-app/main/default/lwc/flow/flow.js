@@ -120,7 +120,6 @@ export default class Flow extends LightningElement {
      * in the WorkFlow dropdown.
      */
     handleClick(){
-        console.log(this);
         window.open('https://web.flow.librestream.com/new/' + this.selectedWorkFlow + '?sfWorkOrderId=' + this.recordId);
     }
 
