@@ -61,8 +61,8 @@ export default class Flow extends LightningElement {
             try {
                 let options = [];
                 data.forEach(key => {
-                    if (key.activeVersionId !== undefined) {
-                        options.push({ label: key.name, value: key.activeVersionId  });
+                    if (key.workflowId !== undefined) {
+                        options.push({ label: key.name, value: key.workflowId  });
                     }
                 });
                 if (options.length == 0 && this.selectedWorkFlow != '') {
@@ -120,6 +120,7 @@ export default class Flow extends LightningElement {
      * in the WorkFlow dropdown.
      */
     handleClick(){
+        console.log(this);
         window.open('https://web.flow.librestream.com/new/' + this.selectedWorkFlow + '?sfWorkOrderId=' + this.recordId);
     }
 
